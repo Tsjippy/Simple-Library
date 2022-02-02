@@ -266,9 +266,9 @@ def start():
             constants.db.update_db_data(query)
 
             #refresh the screen
-            user_search(constants.current_user_data['display_name'])
+            checkout_user_search(constants.current_user_data['display_name'])
 
-            item_search('')
+            checkout_item_search('')
 
             show_popup(f'Succesfully loaned {title} to {name} till '+epoch_to_string(due_date))
         elif event == 'check_in':
@@ -281,9 +281,9 @@ def start():
             constants.db.update_db_data(query)
 
             #refresh the screen
-            user_search(constants.current_user_data['display_name'])
+            checkout_user_search(constants.current_user_data['display_name'])
 
-            item_search('')
+            checkout_item_search('')
 
             show_popup(f'Succesfully returned {title} to the library')     
         elif event == 'extend_loan':
@@ -301,9 +301,9 @@ def start():
             constants.db.update_db_data(query)
 
             #refresh the screen
-            user_search(constants.current_user_data['display_name'])
+            checkout_user_search(constants.current_user_data['display_name'])
 
-            item_search('')
+            checkout_item_search('')
 
             extension_days  = int(extension/60/60/24)
             show_popup(f'Succesfully extended the loan with {extension_days} days')

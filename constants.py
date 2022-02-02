@@ -18,8 +18,8 @@ current_item_data   = ''
 current_author_data = ''
 current_tab         = 'Check out'
 settings            = ''
-userfields          = ["display_name", "first_name", "last_name", "birthday", "barcode", "picture", "max_items", "loan_period"]
-itemfields          = ["title", "item_type", "author", "call_number", "isbn", "barcode", "picture", "linked_to", "loaned_since", "due_date"]
+userfields          = ["id","display_name", "first_name", "last_name", "birthday", "barcode", "picture", "max_items", "loan_period"]
+itemfields          = ["id","title", "item_type", "author", "call_number", "isbn", "barcode", "picture", "linked_to", "loaned_since", "due_date"]
 ignore_close        = False
 refresh             = False
 

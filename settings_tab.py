@@ -1,5 +1,3 @@
-from ctypes import sizeof
-from turtle import title, width
 from constants import *
 
 def build_tab():
@@ -123,9 +121,6 @@ def build_tab():
             metadata        = {'table':'Settings', 'window_refresh':'true'}
         )
     ]
-
-    # Replace any _ with a space and capitalize
-    import_table_header = list(map(lambda text: text.replace('_', ' ').capitalize(), ["title", "item_type", "author", "isbn", "barcode", "picture", "linked_to", "loaned_since", "due_date"]))
 
     # Main layout
     layout = [

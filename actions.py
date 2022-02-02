@@ -186,14 +186,6 @@ def checkout_show_item(item_data):
     else:
         window['check_out'].update(visible=False)
 
-        window['check_in'].update(
-            f'Return "{title}" to the library',
-        )
-        
-        window['extend_loan'].update(
-            f'Extend loan for "{title}"',
-        )
-
         window['check_in_frame'].update(
             visible     = True
         )

@@ -3,10 +3,13 @@ import constants
 
 #layout for loaned item overview
 def loaned_items_frame(key, visible=True):
+    # Replace any _ with a space and capitalize
+    headings = list(map(lambda text: text.replace('_', ' ').capitalize(), constants.itemfields))
+    headings.append('epoch')
     layout    = [
         [sg.Table(
             values                  = [], 
-            headings                = ['','Title', 'Author', 'ISBN', 'Barcode','Picture','Linked','Checkout date', 'Due date', ''],
+            headings                = headings,
             num_rows                = 5,
             alternating_row_color   = 'darkgrey',
             hide_vertical_scroll    = True,
@@ -14,7 +17,7 @@ def loaned_items_frame(key, visible=True):
             key                     = key+'_table',
             justification           = 'center',
             auto_size_columns       = False,
-            visible_column_map      = [0,1,1,0,0,0,0,1,1,0],
+            visible_column_map      = [0,1,0,1,0,0,1,0,0,1,1,0],
             col_widths              = [20,10,10,10],
             enable_click_events     = True
         )],
@@ -103,7 +106,8 @@ def user_details():
                     key             = 'delete_user',
                     button_color    = 'red',
                     pad             = ((10, 0), (30, 0)),
-                    enable_events   = True
+                    enable_events   = True,
+                    border_width    = 2
                 )]
             ],
             border_width        = 0,
@@ -138,7 +142,7 @@ def build_tab():
                 sg.Text('Search:', size=6),
                 sg.I(key='user_search', size=28, enable_events=True, metadata={'table':'Users'})
             ],
-            [sg.Button('Add a new user', key='add_user')],
+            [sg.Button('Add a new user', key='add_user', border_width= 2)],
             [sg.Listbox(
                 values          = users,
                 select_mode     = sg.LISTBOX_SELECT_MODE_SINGLE,

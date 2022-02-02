@@ -130,7 +130,8 @@ def build_tab():
             key             = 'delete_item',
             button_color    = 'red',
             pad             = ((10, 0), (30, 0)),
-            enable_events   = True
+            enable_events   = True,
+            border_width    = 2
         )]
     ]
         
@@ -141,7 +142,7 @@ def build_tab():
                 sg.Text('Search:', size=6),
                 sg.I(key='item_search', size=28, enable_events=True, metadata={'table':'Items'})
             ],
-            [sg.Button('Add a new item', key='add_item')],
+            [sg.Button('Add a new item', key='add_item',border_width = 2)],
             [sg.Listbox(
                 values          = items,
                 select_mode     = sg.LISTBOX_SELECT_MODE_SINGLE,

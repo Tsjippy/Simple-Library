@@ -47,7 +47,8 @@ def build_tab():
             key             = 'delete_author',
             button_color    = 'red',
             pad             = ((10, 0), (30, 0)),
-            enable_events   = True
+            enable_events   = True,
+            border_width    = 2
         )]
     ]
         

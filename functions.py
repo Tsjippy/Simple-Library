@@ -133,6 +133,7 @@ def update_inputs(type, value):
         show_picture(f'{type}_picture', data)
 
     return data
+
 def select_author(display_name):
     update_inputs('author', display_name)
 
@@ -232,17 +233,17 @@ def update_borrowed_items_table(user_id, el_key):
     query                       = 'SELECT * FROM "main"."Items" WHERE linked_to ='+str(user_id)
     loaned_items                = constants.db.get_db_data(query, False)
 
-    #store for later use when clicked on table row
+    # Store for later use when clicked on table row
     constants.loaned_items_data = constants.db.get_db_data(query)
 
     for i, row in enumerate(loaned_items):
         # Show nice formatted dates in table
-        loaned_items[i][7]  = epoch_to_string(loaned_items[i][7])
+        loaned_items[i][9]  = epoch_to_string(loaned_items[i][9])
         #also add the due date as a number
-        loaned_items[i].append(row[8])
-        loaned_items[i][8]  = epoch_to_string(loaned_items[i][8])
+        loaned_items[i].append(row[10])
+        loaned_items[i][10]  = epoch_to_string(loaned_items[i][10])
 
-    #update the table
+    # Update the table
     constants.window[el_key].update(values=loaned_items, num_rows=len(loaned_items))
 
     # Mark any rows with expired loans, we can only do this after filling the table
@@ -254,9 +255,9 @@ def update_borrowed_items_table(user_id, el_key):
         prewarning_time     = int(data[0]['value'])
 
     for index, row in enumerate(loaned_items):
-        if row[9] < time.time():
+        if row[11] < time.time():
             constants.window[el_key].update(row_colors=[(index,'red')])
-        elif row[9] < int(time.time())+prewarning_time:
+        elif row[11] < int(time.time())+prewarning_time:
             constants.window[el_key].update(row_colors=[(index,'orange')])
 
     return loaned_items

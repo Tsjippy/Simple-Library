@@ -113,23 +113,29 @@ def build_tab():
                         enable_events       = True,
                         pad                 = (0,20),
                         key                 = 'check_out',
-                        visible             = False
+                        visible             = False,
+                        border_width        = 2
                     )],
                     # We use a frame because unhiding the buttons places them below each other instead of next to each other
-                    [sg.Frame('',
-                        [[
-                            sg.Button(
-                                '',
-                                enable_events       = True,
-                                key                 = 'check_in'
-                            ),
-                            sg.Text(key='due_date',visible=False),
-                            sg.Button(
-                                'Extend',
-                                enable_events       = True,
-                                key                 = 'extend_loan'
-                            )
-                        ]],
+                    [sg.Frame(
+                        title               = '',
+                        layout              = [
+                            [
+                                sg.Button(
+                                    button_text         = 'Return to library',
+                                    enable_events       = True,
+                                    key                 = 'check_in',
+                                    border_width        = 2
+                                ),
+                                sg.Text(key='due_date',visible=False),
+                                sg.Button(
+                                    button_text         = 'Extend',
+                                    enable_events       = True,
+                                    key                 = 'extend_loan',
+                                    border_width        = 2
+                                )
+                            ]
+                        ],
                         border_width        = 0,
                         visible             = False,
                         key                 = 'check_in_frame'
