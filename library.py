@@ -145,6 +145,9 @@ def add_author(display_name):
         query   = f'INSERT INTO Authors (display_name, first_name, last_name) VALUES ("{display_name}","{first_name}","{last_name}")'
         result  = constants.db.update_db_data(query)
 
+        # Update selector
+        constants.db.fill_selector(f'author_selector')
+
 def start():
     global new_author_name
 
@@ -158,7 +161,7 @@ def start():
 
         # Add a new author when the new_author_name variable is not empty and 
         # the current event is not mapped to the author field
-        if not new_author_name == '' and not event.startswith('item_author'):
+        if not new_author_name == '' and (not isinstance(event, str) or not event.startswith('item_author')):
             add_author(new_author_name)
 
         if isinstance(event, int):
