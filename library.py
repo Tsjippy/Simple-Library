@@ -1,7 +1,6 @@
 import time
 import constants
 import sql_functions
-import sqlite3
 
 # load or create our database as early as possible
 constants.db        = sql_functions.DB('library.sql')
@@ -9,21 +8,26 @@ query               = f'SELECT * FROM "main"."Settings"'
 data                = constants.db.get_db_data(query)
 constants.settings  = {}
 
+# Fill constants with global settings
 for row in data:
     key                     = row['key']
     value                   = row['value']
     constants.settings[key] = value
+
+constants.set_theme()
 
 # own files
 import users_tab
 import items_tab
 import check_out_tab
 import settings_tab
+import authors_tab
 from functions import *
 from actions import *
 from import_csv import *
 
-sg  = constants.sg
+sg              = constants.sg
+new_author_name = ''
 
 def make_window():
     # Tab definitions
@@ -60,6 +64,13 @@ def make_window():
                         border_width            = 10,  
                         tooltip                 = 'Software settings', 
                         element_justification   = 'center'
+                    ),
+                    sg.Tab(
+                        'Authors', 
+                        authors_tab.build_tab(),  
+                        border_width            = 10,  
+                        tooltip                 = 'Authors', 
+                        element_justification   = 'center'
                     )
                 ]
             ],
@@ -88,7 +99,12 @@ def make_window():
     if hide:
         constants.window.hide()
     
-    constants.window.set_icon(pngbase64=constants.icon) 
+    constants.window.set_icon(pngbase64=constants.icon)
+
+    for type in ['item', 'user']:
+        constants.window[f'{type}_selector'].bind("<Up>", "__up__")
+        constants.window[f'{type}_selector'].bind("<Down>", "__down__")
+    constants.window[f'item_author'].bind("<Key>", "__key__")
 
 def refresh_window(force = False):
     if constants.refresh or force:
@@ -98,10 +114,6 @@ def refresh_window(force = False):
 
         # Create new
         make_window()
-
-        for type in ['item', 'user']:
-            constants.window[f'{type}_selector'].bind("<Up>", "__up__")
-            constants.window[f'{type}_selector'].bind("<Down>", "__down__")
 
         #select the tab
         constants.window[constants.current_tab].select()
@@ -116,8 +128,27 @@ def refresh_window(force = False):
         #close the old window
         old.close()
 
-def start():    
-    make_window()   
+def add_author(display_name):
+    global new_author_name
+    new_author_name = ''
+    names           = display_name.split(' ')
+    first_name      = names[0]
+    if len(names) == 1:
+        last_name   = ''
+    else:
+        last_name   = ' '.join(names[1:])
+
+    query       = f'SELECT * FROM "main"."Authors" where display_name="{display_name}"'
+    result      = constants.db.get_db_data(query)
+
+    if len(result) == 0:
+        query   = f'INSERT INTO Authors (display_name, first_name, last_name) VALUES ("{display_name}","{first_name}","{last_name}")'
+        result  = constants.db.update_db_data(query)
+
+def start():
+    global new_author_name
+
+    make_window()
 
     # Event Loop to process "events" and get the "values" of the inputs
     while True:
@@ -125,11 +156,16 @@ def start():
 
         window  = constants.window
 
+        # Add a new author when the new_author_name variable is not empty and 
+        # the current event is not mapped to the author field
+        if not new_author_name == '' and not event.startswith('item_author'):
+            add_author(new_author_name)
+
         if isinstance(event, int):
             # We are dealing with a tab click
             constants.current_tab = values[event]
             if constants.current_tab == 'users_tab' or constants.current_tab == 'items_tab':
-                refresh_window(values[event].replace('s_tab',''))
+                refresh_window()
                 # we have to read it to prevent a loop
                 constants.window.read()
             else:
@@ -137,6 +173,15 @@ def start():
         elif event == sg.WIN_CLOSED or event == 'Exit':
             constants.db.close()
             break
+        elif event == 'user_selector':
+            logger.info(f'Selecting user')
+            select_user(values[event][0])
+        elif event == 'item_selector':
+            logger.info(f'Selecting item')
+            select_item(values[event][0])
+        elif event == 'author_selector':
+            logger.info(f'Selecting author')
+            select_author(values[event][0])
         elif event == 'item_type':
             if len(values[event]) == 0:
                 continue
@@ -144,24 +189,12 @@ def start():
             id      = constants.current_item_data['id']
             query   = f'UPDATE Items SET item_type= "{value}" WHERE id={id}'
             constants.db.update_db_data(query)
-        elif event == 'item_title' or event == 'item_author' or event == 'item_barcode' or event == 'item_isbn':
-            constants.db.update_el_in_db(event)
-
-            if event == 'item_title':
-                 # get current user list
-                values  = window['item_selector'].GetListValues()
-
-                # current selected index
-                index   = window['item_selector'].get_indexes()[0]
-                
-                # Update list options
-                values[index]   = window[event].get()
-
-                # Update the selector Listbox
-                window['item_selector'].update(values=values)
-
-                # Select updated option
-                window['item_selector'].update(set_to_index=[index], scroll_to_index=index)
+        elif event == 'user_search':
+            logger.info('Processing user search')
+            user_search(values[event])
+        elif event == 'item_search':
+            logger.info('Processing item search')
+            item_search(values[event])
         elif event == 'user_first_name' or event == 'user_last_name':
             logger.info('Updating displayname')
             update_user_name()
@@ -212,12 +245,6 @@ def start():
 
                 #update the picture
                 window[f'{type}_picture'].update(source=new_path, size=(constants.im_width, constants.im_height))
-        elif event == 'user_search':
-            logger.info('Processing user search')
-            user_search(values[event])
-        elif event == 'item_search':
-            logger.info('Processing item search')
-            item_search(values[event])
         elif event == 'check_out':
             logger.info('Processing check out')
 
@@ -283,53 +310,82 @@ def start():
 
             #show the clicked item
             checkout_show_item(constants.loaned_items_data[row_nr])
-        elif event == 'user_selector':
-            logger.info(f'Selecting user')
-            select_user(values[event][0])
-        elif event == 'item_selector':
-            logger.info(f'Selecting item')
-            select_item(values[event][0])
         elif event == 'checkout_user_search':
             checkout_user_search(values[event])
         elif event == 'checkout_item_search':
             checkout_item_search(values[event])
         elif event == 'add_user' or event == 'add_item':
             add_entry(event.replace('add_',''))
-        elif event == 'delete_user' or event == 'delete_item':
+        elif event.startswith('delete_'):
             delete_entry(event.replace('delete_',''))
-        elif len(event) ==1:
-            #keyboard key
-            pass
+        elif event == 'import_users':
+            import_users(values[event])
+        elif event == 'import_items':
+            import_items(values[event])
         elif '__up__' in event:
             el_key  = event.replace('__up__', '')
             element = window[el_key]
             cur_index   = element.Widget.curselection()
             new_index   = (cur_index[0] - 1) % element.Widget.size()
-            element.update(set_to_index=[new_index], scroll_to_index=new_index)
+            element.update(set_to_index=[new_index])
 
             #update screen
             if 'user' in el_key:
                 select_user(element.get()[0])
-            else:
+            elif 'item' in el_key:
                 select_item(element.get()[0])
+            elif 'author' in el_key:
+                select_author(element.get()[0])
         elif '__down__' in event:
             el_key  = event.replace('__down__', '')
             element = window[el_key]
             cur_index   = element.Widget.curselection()
             new_index   = (cur_index[0] + 1) % element.Widget.size()
-            element.update(set_to_index=[new_index], scroll_to_index=new_index)
+            element.update(set_to_index=[new_index])
 
             #update screen
             if 'user' in el_key:
                 select_user(element.get()[0])
-            else:
+            elif 'item' in el_key:
                 select_item(element.get()[0])
-        elif isinstance(event, str) and len(event.split(':')) == 2:
-            pass
-        elif event == 'import_users':
-            import_users(values[event])
-        elif event == 'import_items':
-            import_items(values[event])
+            elif 'author' in el_key:
+                select_author(element.get()[0])
+        elif '__key__' in event:
+            el_key  = event.replace('__key__', '')
+            element = window[el_key]
+
+            if el_key == 'item_author':
+                # store name to be used when finished typing
+                new_author_name = element.get()
+        elif event.startswith('item_'):
+            constants.db.update_el_in_db(event)
+
+            if event == 'item_title':
+                 # get current user list
+                values  = window['item_selector'].GetListValues()
+
+                # current selected index
+                index   = window['item_selector'].get_indexes()[0]
+                
+                # Update list options
+                values[index]   = window[event].get()
+
+                # Update the selector Listbox
+                window['item_selector'].update(values=values)
+
+                # Select updated option
+                window['item_selector'].update(set_to_index=[index], scroll_to_index=index)
+            elif event == 'item_author':
+                add_author(values[event])
+        elif event.startswith('author_'):
+            constants.db.update_el_in_db(event)
+
+            first_name  = window['author_first_name'].get()
+            last_name   = window['author_last_name'].get()
+            window['author_display_name'].update(first_name+' '+last_name)
+            constants.db.update_el_in_db('author_display_name')
+
+            update_selector('author_selector', first_name+' '+last_name)
         elif event.startswith('settings_'):
             key     = event.replace('settings_','')
             value   = values[event]
@@ -348,7 +404,12 @@ def start():
             constants.settings[key]=value
 
             if 'window_refresh' in constants.window[event].metadata:
-                constants.refresh   = True
+                if constants.window[event].metadata['window_refresh'] == 'force':
+                    show_popup('Applying new theme, please wait')
+                    constants.set_theme()
+                    refresh_window(True)
+                else:
+                    constants.refresh   = True
         else:
             logger.info(f'This event ({event}) is not yet handled.')
 

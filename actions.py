@@ -1,12 +1,12 @@
 import constants
-from functions import show_error_popup, update_borrowed_items_table, select_user, select_item, show_picture, resource_path
+from functions import show_error_popup, update_borrowed_items_table, select_user, select_item, show_picture, resource_path, update_selector
 
 def add_entry(type):
     window      = constants.window
     prefix      = type+'_'
     table       = type.capitalize()+'s'
 
-    #Empty all user_ inputs
+    #Empty all  inputs
     for el_key in window.key_dict:
         if isinstance(el_key, str) and el_key.startswith(prefix) and (window[el_key].metadata == None or not 'clear' in window[el_key].metadata):
             window[el_key].update('')
@@ -40,9 +40,12 @@ def delete_entry(entry):
     if entry == 'user':
         table   = 'Users'
         id      = constants.current_user_data['id']
-    else:
+    elif entry == 'item':
         table   = 'Items'
         id      = constants.current_item_data['id']
+    elif entry == 'author':
+        table   = 'AUthors'
+        id      = constants.current_author_data['id']
 
     if answer == 'Yes':
         # Delete from db
@@ -65,20 +68,7 @@ def update_user_name():
     if first_name == '' and last_name == '':
         return
 
-    # get current user list
-    values  = window['user_selector'].GetListValues()
-
-    # current selected index
-    index   = window['user_selector'].get_indexes()[0]
-    
-    # Update list options
-    values[index]   = first_name+' '+ last_name
-
-    # Update the selector Listbox
-    window['user_selector'].update(values=values)
-
-    # Select updated option
-    window['user_selector'].update(set_to_index=[index], scroll_to_index=index)
+    update_selector('user_selector', first_name+' '+ last_name)
 
     # Make sure first name is capitalized
     window['user_first_name'].update(first_name)

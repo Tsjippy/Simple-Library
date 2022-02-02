@@ -81,7 +81,11 @@ class DB:
         return id
 
     def update_el_in_db(self, el_key, where=None):
+        el_key      = el_key.split('__')[0]
         element     = constants.window[el_key]
+
+        if 'save' in element.metadata and element.metadata['save'] == False:
+            return
 
         table       = element.metadata['table']
         column      = element.metadata['column']
@@ -93,6 +97,8 @@ class DB:
                 where   = 'id='+str(constants.current_user_data['id'])
             elif table == 'Items':
                 where   = 'id='+str(constants.current_item_data['id'])
+            elif table == 'Authors':
+                where   = 'id='+str(constants.current_author_data['id'])
             else:
                 logger.info(f'Not clear which row to update to for table {table}')
                 show_error_popup('Not clear what to update!')

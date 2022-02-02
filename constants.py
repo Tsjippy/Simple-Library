@@ -1,14 +1,9 @@
 import PySimpleGUI as sg
 import logging
 
-
 logger=logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG) # (NOTSET,DEBUG,INFO,WARNING,ERROR,CRITICAL)
 
-sg.theme('DarkBlue3')  
-#sg.theme('SystemDefault1')
-
-theme_color         = '#64778D'
 db_path             = 'library.sqlite3'
 db                  = ''
 window              = ''
@@ -20,9 +15,17 @@ label_width         = 10
 input_width         = 30
 current_user_data   = ''
 current_item_data   = ''
+current_author_data = ''
 current_tab         = 'Check out'
 settings            = ''
-userfields          = ["display_name", "first_name", "last_name", "birthday", "barcode", "picture", "max_items", "loan_perio"]
-itemfields          = ["title", "item_type", "author", "isbn", "barcode", "picture", "linked_to", "loaned_since", "due_date"]
+userfields          = ["display_name", "first_name", "last_name", "birthday", "barcode", "picture", "max_items", "loan_period"]
+itemfields          = ["title", "item_type", "author", "call_number", "isbn", "barcode", "picture", "linked_to", "loaned_since", "due_date"]
 ignore_close        = False
 refresh             = False
+
+def set_theme():
+    if 'theme' in settings:
+        theme_name  = settings['theme']
+    else:
+        theme_name          = 'DarkBlue3'
+    sg.theme(theme_name)

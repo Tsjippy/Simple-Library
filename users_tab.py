@@ -147,7 +147,7 @@ def build_tab():
                 expand_y        = True, 
                 enable_events   = True,
                 no_scrollbar    = no_scrollbar,
-                metadata        = {'table': 'Users', 'clear':'false', 'orderby':'last_name'}
+                metadata        = {'table': 'Users', 'clear':'false', 'orderby':'last_name', 'save':False}
             )]
         ],
         justification='left',

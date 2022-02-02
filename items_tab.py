@@ -1,6 +1,3 @@
-from pydoc import visiblename
-from telnetlib import SGA
-from wsgiref.util import setup_testing_defaults
 import constants
 import functions
 
@@ -66,6 +63,7 @@ def build_tab():
         locations               = []
         location_type_selector  = []
 
+    authors = [i[1] for i in constants.db.get_db_data(f'SELECT * FROM "main"."Authors" ORDER BY last_name', False)]
     col_2 = sg.Col(
         [
             [
@@ -75,20 +73,32 @@ def build_tab():
             item_type_selector,
             [
                 sg.Text('Author:', size=label_width),
-                sg.I(key='item_author', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'author'})
-                ],
+                sg.Combo(
+                    values          = authors, 
+                    key             = 'item_author',
+                    size            = input_width-2,
+                    enable_events   = True,
+                    bind_return_key = True,
+                    metadata        = {'table':'Items', 'column':'author'},
+                )
+                #sg.I(key='item_author', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'author'})
+            ],
+            [
+                sg.Text('Call number:', size=label_width),
+                sg.I(key='item_call_number', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'call_number'})
+            ],
             [
                 sg.Text('ISBN:', size=label_width),
                 sg.I(key='item_isbn', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'isbn'})
-                ],
+            ],
             [
                 sg.Text('Barcode:', size=label_width),
                 sg.I(key='item_barcode', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'barcode'})
-                ],
+            ],
             [
                 sg.Text('Loaned to:', size=label_width),
                 sg.Text(key='item_linked_to', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'linked_to'})
-                ],
+            ],
             [
                 sg.Text('Loaned since:', size=label_width),
                 sg.Text(key='item_loaned_since', size=input_width, enable_events=True, metadata={'table':'Items', 'column':'loaned_since'})
@@ -124,7 +134,6 @@ def build_tab():
         )]
     ]
         
-
     #left column, ITEM selector
     col_1    = sg.Col(
         [
@@ -141,7 +150,7 @@ def build_tab():
                 expand_y        = True, 
                 enable_events   = True,
                 no_scrollbar    = no_scrollbar,
-                metadata        = {'table': 'Items', 'clear':'false', 'orderby':'title'}
+                metadata        = {'table': 'Items', 'clear':'false', 'orderby':'title', 'save':False}
             )]
         ],
         justification='left'

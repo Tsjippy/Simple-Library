@@ -19,12 +19,20 @@ CREATE TABLE "Items"(
 	"title" 			TEXT DEFAULT 'New Item',
 	"item_type"			TEXT DEFAULT 'Book',
 	"author" 			TEXT,
+	"call_number"		TEXT,
 	"isbn" 				INTEGER,
 	"barcode" 			TEXT,
 	"picture"		 	TEXT,
 	"linked_to" 		INTEGER,
 	"loaned_since"		INTEGER,
 	"due_date"			INTEGER
+);
+
+CREATE TABLE "Authors"(
+	"id" 				INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"display_name" 		TEXT DEFAULT 'New Author',
+	"first_name" 		TEXT,
+	"last_name" 		TEXT
 );
 
 CREATE TABLE "Settings"(

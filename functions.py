@@ -21,6 +21,25 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+def update_selector(el_key, value):
+    window  = constants.window
+    # get current user list
+    values  = window[el_key].GetListValues()
+
+    # current selected index
+    index   = window[el_key].get_indexes()[0]
+    
+    # Update list options
+    values[index]   = value
+
+    # Update the selector Listbox
+    window[el_key].update(values=values)
+
+    # Select updated option
+    window[el_key].update(set_to_index=[index], scroll_to_index=index)
+
+    window.refresh()
+
 def show_picture(el_key, data):
     # Show item picture
     source  = data['picture']
@@ -36,7 +55,8 @@ def show_popup(text):
         no_titlebar     = True, 
         button_type     = constants.sg.POPUP_BUTTONS_NO_BUTTONS, 
         background_color= 'white', 
-        text_color      = constants.theme_color
+        text_color      = constants.sg.theme_background_color(),
+        non_blocking    = True
     )
 
 def show_error_popup(text):
@@ -89,10 +109,14 @@ def update_inputs(type, value):
         query       = f'SELECT * FROM "main"."Items" WHERE title="{value}"'
         data        = db.get_db_data(query)[0]
         constants.current_item_data = data
-    else:
+    elif type == 'user':
         query       = f'SELECT * FROM "main"."Users" WHERE display_name="{value}"'
         data        = db.get_db_data(query)[0]
         constants.current_user_data = data
+    elif type == 'author':
+        query       = f'SELECT * FROM "main"."Authors" WHERE display_name="{value}"'
+        data        = db.get_db_data(query)[0]
+        constants.current_author_data = data
 
     for key, value in data.items():
         #check if we have an element for this key
@@ -104,10 +128,13 @@ def update_inputs(type, value):
             except:
                 logger.info(f'failed')
 
-    #if there is a picture set, show it
-    show_picture(f'{type}_picture', data)
+    if not type == 'author':
+        #if there is a picture set, show it
+        show_picture(f'{type}_picture', data)
 
     return data
+def select_author(display_name):
+    update_inputs('author', display_name)
 
 def select_user(display_name):
     window  = constants.window

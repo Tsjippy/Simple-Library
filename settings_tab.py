@@ -1,5 +1,5 @@
 from ctypes import sizeof
-from turtle import title
+from turtle import title, width
 from constants import *
 
 def build_tab():
@@ -18,11 +18,28 @@ def build_tab():
         )
     ]
 
+    if 'theme' in settings:
+        theme_name  = settings['theme']
+    else:
+        theme_name          = 'DarkBlue3'
+    row_2   = [
+        sg.Text('Program theme color:', size=30),
+        sg.Combo(
+            values          = sg.theme_list(),
+            default_value   = theme_name,
+            readonly        = True, 
+            key             = 'settings_theme',
+            size            = input_width-2,
+            enable_events   = True,
+            metadata        = {'table':'Settings', 'window_refresh':'force'},
+        )
+    ]
+
     if 'loan_period' in settings:
         value   = settings['loan_period']
     else:
         value   = ''
-    row_2    = [
+    row_3    = [
         sg.Text('Default loan period in days:', size=30),
         sg.I(
             default_text    = value,
@@ -34,19 +51,21 @@ def build_tab():
     ]
 
     if 'item_types' in settings and len(settings['item_types']) > 4:
-        no_scrollbar   = False
+        no_scrollbar    = False
+        width           = input_width-2
     else:
         no_scrollbar   = True
+        width           = input_width
     if 'item_types' in settings:
         value   = settings['item_types']
     else:
         value   = ''
-    row_3    = [
+    row_4    = [
         sg.Text('Available item types:', size=30),
         sg.Multiline(
             default_text    = value,
             key             = 'settings_item_types', 
-            size            = (30,6),
+            size            = (width,6),
             enable_events   = True,
             no_scrollbar    = no_scrollbar,
             metadata        = {'table':'Settings', 'window_refresh':'true'},
@@ -57,7 +76,7 @@ def build_tab():
         value   = settings['max_items']
     else:
         value   = ''
-    row_4    = [
+    row_5    = [
         sg.Text('Default maximum items to loan:', size=30),
         sg.I(
             default_text    = value,
@@ -72,7 +91,7 @@ def build_tab():
         value   = settings['prewarning_time']
     else:
         value   = ''
-    row_5    = [
+    row_6    = [
         sg.Text('Pre warning time in days:', size=30),
         sg.I(
             default_text    = value,
@@ -85,18 +104,20 @@ def build_tab():
 
     if 'item_locations' in settings and len(settings['item_locations']) > 4:
         scrollbar   = False
+        width       = input_width-2
     else:
         scrollbar   = True
+        width       = input_width
     if 'prewarning_time' in settings:
         value   = settings['prewarning_time']
     else:
         value   = ''
-    row_6    = [
+    row_7    = [
         sg.Text('Available item locations:', size=30),
         sg.Multiline(
             default_text    = value,
             key             = 'settings_item_locations', 
-            size            = (30,6),
+            size            = (width,6),
             enable_events   = True,
             no_scrollbar    = scrollbar,
             metadata        = {'table':'Settings', 'window_refresh':'true'}
@@ -113,7 +134,7 @@ def build_tab():
                 [
                     [sg.Text('Settings', justification='center', expand_x = True)],
                     [sg.HorizontalSeparator()],
-                    row_1,row_2,row_3,row_4,row_5,row_6
+                    row_1,row_2,row_3,row_4,row_5,row_6,row_7
                 ],
                 vertical_alignment='top'
             ),
@@ -145,7 +166,7 @@ def build_tab():
                                     key             = 'import_progress_message', 
                                     justification   = 'center', 
                                     expand_x        = True,
-                                    text_color      = theme_color,
+                                    text_color      = sg.theme_background_color(),
                                     background_color= 'white'
                                 )],
                                 [

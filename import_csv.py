@@ -53,6 +53,12 @@ def import_stuff(path, type):
         columns         = constants.userfields
         table           = 'Users'
 
+    answer  = constants.sg.popup_yes_no(
+        f'Do you want to remove all existing {type}s first before doing the import?'
+    )
+    if answer == 'Yes':
+        constants.db.update_db_data(f'DELETE FROM {table}')
+
     import_fields   = str(columns).replace('[','').replace(']','')
 
     with open(path, newline='') as csvfile:
