@@ -1,5 +1,5 @@
 import constants
-from functions import show_error_popup, update_borrowed_items_table, select_user, select_item, show_picture, resource_path, update_selector
+from functions import show_error_popup, update_borrowed_items_table, select_user, select_item, select_author, show_picture, resource_path, update_selector
 
 def add_entry(type):
     window      = constants.window
@@ -11,12 +11,13 @@ def add_entry(type):
         if isinstance(el_key, str) and el_key.startswith(prefix) and (window[el_key].metadata == None or not 'clear' in window[el_key].metadata):
             window[el_key].update('')
 
-    #remove image
-    window[f'change_{prefix}picture'].update('Add a picture')
-    source  = resource_path(f'./pictures/{type}s/default.png')
+    if not type == 'author':
+        #remove image
+        window[f'change_{prefix}picture'].update('Add a picture')
+        source  = resource_path(f'./pictures/{type}s/default.png')
 
-    #change the image
-    window[f'{prefix}picture'].update(source=source, size=(constants.im_width, constants.im_height))
+        #change the image
+        window[f'{prefix}picture'].update(source=source, size=(constants.im_width, constants.im_height))
 
     #add new entry to db
     new_id      = constants.db.add_db_entry(table)
@@ -91,17 +92,24 @@ def update_item_meta(item_key):
 
 def user_search(value):
     if not value == '':
-        query   = f'SELECT * FROM "main"."Users" WHERE display_name LIKE "%{value}%"'
+        query   = f'SELECT * FROM "main"."Users" WHERE display_name LIKE "%{value}%" or barcode = "{value}"'
         data    = constants.db.get_db_data(query)
         if not data == [] and len(data) == 1:
             select_user(data[0]['display_name'])
 
 def item_search(value):
     if not value == '':
-        query   = f'SELECT * FROM "main"."Items" WHERE title LIKE "%{value}%"'
+        query   = f'SELECT * FROM "main"."Items" WHERE title LIKE "%{value}%" or barcode = "{value}"'
         data    = constants.db.get_db_data(query)
         if not data == [] and len(data) == 1:
             select_item(data[0]['title'])
+
+def author_search(value):
+    if not value == '':
+        query   = f'SELECT * FROM "main"."Authors" WHERE display_name LIKE "%{value}%"'
+        data    = constants.db.get_db_data(query)
+        if not data == [] and len(data) == 1:
+            select_author(data[0]['display_name'])
 
 def checkout_show_user(user_data):
     constants.current_user_data = user_data
@@ -126,7 +134,7 @@ def checkout_show_user(user_data):
     window['checkout_user_frame'].update(visible=True)
 
     #Clear search input
-    window['checkout_user_search'].update('')
+    #window['checkout_user_search'].update('')
 
     # Set focus to item search
     window['checkout_item_search'].set_focus()
@@ -174,12 +182,12 @@ def checkout_show_item(item_data):
         if len(data) < user_data['max_items']:
             #checkout button
             window['check_out'].update(
-                f'Loan "{title}" to '+first_name,
+                f'Loan this item to {first_name}',
                 visible     = True
             )
 
             window['check_out'].set_focus()
-            window['check_out'].set_tooltip(f'Check out "{title}" to '+first_name)
+            window['check_out'].set_tooltip(f'Check out "{title}" to {first_name}')
             window['check_out'].bind("<Return>", "")
         else:
             show_error_popup(first_name+' has reached the loan limit of '+ str(user_data['max_items']))
@@ -191,7 +199,7 @@ def checkout_show_item(item_data):
         )
 
         window['check_in'].set_focus()
-        window['check_in'].set_tooltip(f'Return "{title}" to the library and remove from '+first_name)
+        window['check_in'].set_tooltip(f'Return "{title}" to the library and remove from {first_name}')
         window['check_in'].bind("<Return>", "")
 
 def checkout_hide_entry(type):

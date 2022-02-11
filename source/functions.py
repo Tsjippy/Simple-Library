@@ -48,9 +48,13 @@ def show_picture(el_key, data):
         # No picture set, show default
         source  = resource_path('./pictures/items/default.png')
 
-        constants.window[f'change_{type}_picture'].update('Add a picture')
+        button_text     = 'Add a picture'
     else:
-        constants.window[f'change_{type}_picture'].update('Change picture')
+        button_text     = 'Change picture'
+    
+    if f'change_{type}_picture' in constants.window.key_dict:
+        constants.window[f'change_{type}_picture'].update(button_text)
+
     #change the image
     constants.window[el_key].update(source=source, size=(constants.im_width, constants.im_height))
 
@@ -112,18 +116,27 @@ def update_inputs(type, value):
 
     if type == 'item':
         query       = f'SELECT * FROM "main"."Items" WHERE title="{value}"'
-        data        = db.get_db_data(query)[0]
-        constants.current_item_data = data
+        data        = db.get_db_data(query)
+        if len(data) == 0:
+            data    = ''
+        else:
+            constants.current_item_data = data[0]
     elif type == 'user':
         query       = f'SELECT * FROM "main"."Users" WHERE display_name="{value}"'
-        data        = db.get_db_data(query)[0]
-        constants.current_user_data = data
+        data        = db.get_db_data(query)
+        if len(data) == 0:
+            data    = ''
+        else:
+            constants.current_user_data = data[0]
     elif type == 'author':
         query       = f'SELECT * FROM "main"."Authors" WHERE display_name="{value}"'
-        data        = db.get_db_data(query)[0]
-        constants.current_author_data = data
+        data        = db.get_db_data(query)
+        if len(data) == 0:
+            data    = ''
+        else:
+            constants.current_author_data = data[0]
 
-    for key, value in data.items():
+    for key, value in data[0].items():
         #check if we have an element for this key
         if f'{type}_'+key in window.key_dict:
             try:
@@ -135,7 +148,7 @@ def update_inputs(type, value):
 
     if not type == 'author':
         #if there is a picture set, show it
-        show_picture(f'{type}_picture', data)
+        show_picture(f'{type}_picture', data[0])
 
     return data
 
@@ -163,12 +176,12 @@ def select_user(display_name):
     # update borrowed items table
     # 
     """
-    update_borrowed_items_table(data['id'], 'borrowed_items_table')
+    update_borrowed_items_table(data[0]['id'], 'borrowed_items_table')
 
     window.refresh()
 
 def select_item(title):
-    data    = update_inputs('item', title)
+    data    = update_inputs('item', title)[0]
 
     window  = constants.window
     db      = constants.db

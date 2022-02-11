@@ -129,7 +129,7 @@ def build_tab():
                                 ),
                                 sg.Text(key='due_date',visible=False),
                                 sg.Button(
-                                    button_text         = 'Extend',
+                                    button_text         = 'Extend loan',
                                     enable_events       = True,
                                     key                 = 'extend_loan',
                                     border_width        = 2

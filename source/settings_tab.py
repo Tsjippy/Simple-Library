@@ -143,6 +143,7 @@ def build_tab():
                         key             = 'import_users',
                         enable_events   = True,
                         file_types      = (('.CSV Files', '*.csv'),),
+                        tooltip         = "Make sure the file has at least one of these headers:\n"+str(userfields).replace('[','').replace(']','')
                     )],
                     [sg.Text('Select a file to import Items')],
                     [sg.FileBrowse(
@@ -150,6 +151,7 @@ def build_tab():
                         key             = 'import_items',
                         enable_events   = True,
                         file_types      = (('.CSV Files', '*.csv'),),
+                        tooltip         = "Make sure the file has at least one of these headers:\n"+str(itemfields).replace('[','').replace(']','')
                     )],
                     [sg.Frame(
                         title           = '',

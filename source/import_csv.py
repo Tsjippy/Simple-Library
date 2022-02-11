@@ -113,7 +113,7 @@ def import_stuff(path, type):
                 id  = constants.db.add_db_entry(table)
 
                 # Build the update query
-                query           = f'UPDATE Items SET '
+                query           = f'UPDATE {table} SET '
                 for i,column in enumerate(row):
                     if i > 0:
                         query   += ', '

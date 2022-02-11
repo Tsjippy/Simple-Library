@@ -59,6 +59,7 @@ def build_tab():
                 sg.Text('Search:', size=6),
                 sg.I(key='author_search', size=28, enable_events=True, metadata={'table':'Authors'})
             ],
+            [sg.Button('Add a new author', key='add_author', border_width= 2)],
             [sg.Listbox(
                 values          = authors,
                 select_mode     = sg.LISTBOX_SELECT_MODE_SINGLE,

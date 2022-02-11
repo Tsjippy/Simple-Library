@@ -198,6 +198,9 @@ def start():
         elif event == 'item_search':
             logger.info('Processing item search')
             item_search(values[event])
+        elif event == 'author_search':
+            logger.info('Processing item search')
+            author_search(values[event])
         elif event == 'user_first_name' or event == 'user_last_name':
             logger.info('Updating displayname')
             update_user_name()
@@ -320,8 +323,6 @@ def start():
             checkout_user_search(values[event])
         elif event == 'checkout_item_search':
             checkout_item_search(values[event])
-        elif event == 'add_user' or event == 'add_item':
-            add_entry(event.replace('add_',''))
         elif event.startswith('delete_'):
             delete_entry(event.replace('delete_',''))
         elif event == 'import_users':
@@ -363,6 +364,8 @@ def start():
             if el_key == 'item_author':
                 # store name to be used when finished typing
                 new_author_name = element.get()
+        elif event.startswith('add_'):
+            add_entry(event.replace('add_',''))
         elif event.startswith('item_'):
             constants.db.update_el_in_db(event)
 
